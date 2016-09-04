@@ -5,16 +5,19 @@ module Snowflake
   , IdWorker(..)
   , defaultConf
   , next
+  , nexts
   ) where
 
 
 import Prelude hiding (sequence)
 import Data.Int (Int64)
-import Data.Maybe (Maybe)
+import Data.Maybe (Maybe, isNothing, fromJust)
 import Data.Bits ( (.|.)
                  , shiftL
                  )
-
+import Data.Time.Exts.Unix ( getCurrentUnixDateTimeMillis
+                           , UnixDateTimeMillis(..)
+                           )
 
 type Timestamp = Int64
 
@@ -47,3 +50,12 @@ next worker@(IdWorker lastSq wid did lastTs (Conf sBits wBits dBits twepoch)) ts
       wBit = wid `shiftL` sBits
       dBit = did `shiftL` (sBits + wBits)
       tBit = (ts - twepoch) `shiftL` (sBits + wBits + dBits)
+
+nexts :: IdWorker -> Int -> IO ([Int64], IdWorker)
+nexts worker 0 = return ([], worker)
+nexts worker n = do
+  timestamp <- _udt_mil_base <$> getCurrentUnixDateTimeMillis
+  let (maybeNewId, newWorker) = next worker timestamp in
+   if isNothing maybeNewId
+      then nexts worker n
+      else (\(ids, wk) -> (fromJust maybeNewId : ids, wk)) <$> nexts newWorker (n-1)

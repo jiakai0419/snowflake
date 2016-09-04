@@ -1,7 +1,6 @@
 module Main where
 
 import Snowflake
-import Data.Time.Exts.Unix
 
 worker1 = IdWorker { _sequence = 0
                    , _workerId = 7
@@ -11,4 +10,7 @@ worker1 = IdWorker { _sequence = 0
                    }
 
 main :: IO ()
-main = print $ next worker1 1472752884000
+main = do
+  (ids, newWorker) <- nexts worker1 1000000
+  print ids
+  print newWorker
