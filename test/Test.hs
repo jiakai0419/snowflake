@@ -6,6 +6,7 @@ import Test.QuickCheck.All
 import Test.QuickCheck.Monadic
 import Snowflake
 import Data.Int (Int64)
+import Data.List (sort)
 
 --------------------------------------------------------------------------
 -- constant
@@ -35,14 +36,33 @@ prop_sc worker n = 0 <= n && n <= maxScale  ==> monadicIO $ do
   assert $ length ids == n
 
 --------------------------------------------------------------------------
--- ascending order
+-- strict ascending order
 
--- prop_asc TODO
+isStrictAsc :: Ord a => [a] -> Bool
+isStrictAsc (x:y:xs)
+  | x < y = isStrictAsc (y:xs)
+  | otherwise = False
+isStrictAsc _ = True
+
+prop_asc worker n = 0 <= n && n <= maxScale  ==> monadicIO $ do
+  (ids, _) <- run $ nexts worker n
+  assert $ isStrictAsc ids
 
 --------------------------------------------------------------------------
 -- no-repeat
 
--- prop_np TODO
+isNoRepeat :: Ord a => [a] -> Bool
+isNoRepeat = isNoRepeat' . sort
+
+isNoRepeat' :: Eq a => [a] -> Bool
+isNoRepeat' (x:y:xs)
+  | x /= y = isNoRepeat' (y:xs)
+  | otherwise = False
+isNoRepeat' _ = True
+
+prop_np worker n = 0 <= n && n <= maxScale ==> monadicIO $ do
+  (ids, _) <- run $ nexts worker n
+  assert $ isNoRepeat ids
 
 --------------------------------------------------------------------------
 -- main
