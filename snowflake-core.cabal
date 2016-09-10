@@ -1,6 +1,6 @@
 name:                snowflake-core
-version:             0.1.0.0
-synopsis:            Initial project template from stack
+version:             0.1.0.1
+synopsis:            twitter's snowflake
 description:         Please see README.md
 homepage:            https://github.com/jiakai0419/snowflake#readme
 license:             BSD3
@@ -8,7 +8,7 @@ license-file:        LICENSE
 author:              KaiJia
 maintainer:          jiakai0419@gmail.com
 copyright:           Copyright: (c) 2016 KaiJia
-category:            Demo
+category:            commercial
 build-type:          Simple
 -- extra-source-files:
 cabal-version:       >=1.10
